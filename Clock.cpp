@@ -13,7 +13,7 @@ using namespace std;
 // DESCRIPTION: Driver for the program, it checks for correct
 //				command line args and then if that is valid, it
 //				then goes ahead and loads a clock into a solver
-//				and attempts to solve it, displaying the results.
+//				and attempts to solve it, displaying the results
 int main(int argc, char *argv[]){
 	if(argc != 4 ){
 		cout << "Usage: clockhrs start stop" << endl;
