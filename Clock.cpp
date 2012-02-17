@@ -1,80 +1,65 @@
-// CLOCK.CPP
-// Author:  Chad Campbell - cwc5189
-// Created: 1/16/2012
-// Updated: 1/17/2012
+// File: $Id: clock.cpp,v 1.1 2012/01/29 01:53:35 jrl6166 Exp jrl6166 $
+// Author:	 Jeff Lansing
+// Description:  n/a
+// Revision History:
+// 	$Log: clock.cpp,v $
+// 	Revision 1.1  2012/01/29 01:53:35  jrl6166
+// 	Initial revision
+//
+// 	Revision 1.2  2012/01/24 15:04:52  jrl6166
+// 	clock specific program with proper error handling
+//
+//
 
-#include "Clock.h"
-#include "Solver.h"
+#include <cstdlib>
 #include <iostream>
-using namespace std;
+#include <climits>
+#include "ClockPuzzle.h"
 
-// NAME: main
-//
-// DESCRIPTION: Driver for the program, it checks for correct
-//				command line args and then if that is valid, it
-//				then goes ahead and loads a clock into a solver
-//				and attempts to solve it, displaying the results
-int main(int argc, char *argv[]){
-	if(argc != 4 ){
-		cout << "Usage: clockhrs start stop" << endl;
-	}
-	else{
-		if(((atoi(argv[1]) < 0)) || (atoi((argv[1])) < 0) || (atoi((argv[1])) < 0)){
-			cout << "Usage: clockhrs start stop" << endl;
-		}
-		else{
-			//read args
-			Clock c(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
-			Solver s(c);  //Connect clock to solver
-			s.solve();
-			//print solution
-			s.display();
-		}
-	}
+const int NUM_CLOCK_ARGS = 4;
+
+// specialized for the clock program
+// no negative or zero values are allowed here
+// There is no zero hour hand on a clock
+bool isValidInt(int x) {
+	return x > 0 && x != INT_MIN && x != INT_MAX;
 }
 
-// NAME: (ctor)
-//
-// ARGUMENTS: numHours - the hour system for the clock
-//			  cTime - the current time
-//			  tTime - the desired (or true) time;
-//
-// DESCRIPTION: A clock that stores the hour system, the current time
-//              and the desired time to be set to.
-Clock::Clock(int numHours, int cTime, int tTime) :
-	_numHours(numHours), _cTime(cTime), _tTime(tTime){
+// Entry point for the clock program
+// Does basic parsing and input validation
+// Feeds said data to the solver
+int main(int argc, char * argv[]) {
+	int numHours, startTime, stopTime;
+	if (argc == NUM_CLOCK_ARGS) {
+		numHours = atoi(argv[1]);
+		startTime = atoi(argv[2]);
+		stopTime = atoi(argv[3]);
+	} else {
+		std::cout << "Invalid arguments.  Usage is clock [hours] [start] [stop]" << std::endl;
+		return 1;
+	}
+	if (!isValidInt(numHours)) {
+		std::cout << "Invalid input for hours" << std::endl;
+		return 1;
+	}
+	if (!isValidInt(startTime)) {
+		std::cout << "Invalid input for start" << std::endl;
+		return 1;
+	}
+	if (!isValidInt(stopTime)) {
+		std::cout << "Invalid input for stop" << std::endl;
+		return 1;
+	}
+	if (startTime > numHours) {
+		std::cout << "Start time cannot be greater than the number of hours on the clock!" << std::endl;
+		return 1;
+	}
+	if (stopTime > numHours) {
+		std::cout << "Stop time cannot be greater than the number of hours on the clock!" << std::endl;
+		return 1;
+	}
+	// create and solve clock puzzle
+	ClockPuzzle clockPuzzle = ClockPuzzle(numHours, startTime, stopTime);
+	clockPuzzle.solve(std::cout);
+	return 0;
 }
-
-	// NAME: getNeighbors
-	//
-	// ARGUMENTS: c - The time to get neighbors of
-	//
-	// RETURNS: neighbors - a vector of the two ints that neighbor c
-	//
-	// DESCRIPTION: returns a vector containing the two times that are
-	//				one hour ahead and one hour behind the time 'c'.
-	//				If c = 1, then it sets the hour preceding 1 to be
-	//				12.
-	vector<int> Clock::getNeighbors(int c){
-		vector<int> neighbors;
-		if(c == 1){
-			neighbors.push_back(12);
-		}
-		else{
-			neighbors.push_back((c - 1)%_numHours);
-		}
-		neighbors.push_back((c + 1)%_numHours);
-
-		return neighbors;
-		
-	}
-
-	// Simple return method for _cTime
-	int Clock::cTime(){
-		return _cTime;
-	}
-
-	// Simple return method for _tTime
-	int Clock::tTime(){
-		return _tTime;
-	}
